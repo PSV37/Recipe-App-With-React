@@ -1,25 +1,31 @@
 import React, {useEffect, useState} from 'react';
-import Recipe from './Recipe'
+
+import { APP_ID, APP_KEY } from './constant/constant'
+import Recipes from './components/Recipes'
 import './App.css';
 import loading from './loading.png';
 
 const App = () =>  {
-  const APP_ID = "4e32c3fe"
-  const APP_KEY = "88f56d507ec635e8c0741cfc52fbc635"
 
-  const exampleReq = `https://api.edamam.com/search?q=chicken&app_id=${APP_ID}&app_key=${APP_KEY}`
+  /*
+  * Define states
+  */
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('chicken');
   const [isLoading, setIsLoading] = useState(false);
 
+  /*
+  * Fire api onload
+  */
   useEffect(() => {
-    
     getRecipes();
-   
   }, [query]);
 
 
+  /*
+  * Get all recipes
+  */
   const getRecipes = async () => {
     setIsLoading(true)
     const res = await fetch(
@@ -29,44 +35,36 @@ const App = () =>  {
     setIsLoading(false)
     const data = await res.json();
     setRecipes(data.hits)
-    console.log(data.hits);
-  }
+  } 
 
 
+  /*
+  * Update search values
+  */
   const updateSearch = (e) => {
     setSearch(e.target.value)
   }
 
-
-  const getSearch = (e) => {
-    setIsLoading(true)
+  /*
+  * Get searched values
+  */
+  const getSearch = (e) => { 
     e.preventDefault();
+    setIsLoading(true);
+
     setQuery(search)
     setSearch('')
   }
 
   return (
     <div className="App">
-      <form onSubmit={getSearch} className="search-form">
-        <div className="form-group " style={{display:"-webkit-box"}}>
-          <input type="text" className="form-control search-bar" value={search} onChange={updateSearch} placeholder="Search new recipes here"/>
-          <button className="search-button btn btn-primary" type="submit">SEARCH</button>
-        </div>
-      </form>
-      <div className="recipes">
-      {isLoading ? (<div className="text-center" style={{marginRight:'50px'}}><h2>Loading...</h2></div>) : null}
-        {recipes.map((recipe) =>(
-              <Recipe 
-                key={recipe.recipe.label}
-                title={recipe.recipe.label}  
-                calories={recipe.recipe.calories}  
-                image={recipe.recipe.image} 
-                ingredients={recipe.recipe.ingredients}
-                />
-            ))
-        }
-      </div>
-
+       <Recipes 
+        search={search} 
+        isLoading={isLoading} 
+        searchRecipe={getSearch} 
+        updateSearch={updateSearch} 
+        recipes={recipes} 
+      />
     </div>
   );
 }
